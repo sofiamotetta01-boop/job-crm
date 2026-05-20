@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Hunt CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy-deep: #0a0f1e;
+  --navy: #0d1529;
+  --navy-mid: #132040;
+  --navy-light: #1c2d52;
+  --navy-border: #243660;
+  --gold: #c9a84c;
+  --gold-light: #e2c47a;
+  --gold-dim: #7a6030;
+  --white: #f0eeea;
+  --white-dim: #a8a49c;
+  --red: #c0392b;
+  --green: #27ae60;
+  --blue-accent: #2980b9;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy-deep);
+  color: var(--white);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  border-bottom: 1px solid var(--navy-border);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+.logo span { color: var(--white); font-weight: 400; font-style: italic; }
+
+.header-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.stat-pill {
+  background: var(--navy-light);
+  border: 1px solid var(--navy-border);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 12px;
+  color: var(--white-dim);
+}
+.stat-pill strong { color: var(--gold); font-weight: 500; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: var(--navy-deep);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  letter-spacing: .3px;
+}
+.btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+
+/* ── FILTERS BAR ── */
+.filters-bar {
+  background: var(--navy);
+  border-bottom: 1px solid var(--navy-border);
+  padding: 14px 32px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  background: var(--navy-mid);
+  border: 1px solid var(--navy-border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-box:focus { border-color: var(--gold-dim); }
+.search-box::placeholder { color: var(--white-dim); }
+
+.filter-select {
+  background: var(--navy-mid);
+  border: 1px solid var(--navy-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+.filter-select option { background: var(--navy-mid); }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  padding: 28px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── STATUS PIPELINE ── */
+.pipeline {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.pipeline-col {
+  flex: 1;
+  min-width: 140px;
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  border-top: 3px solid transparent;
+}
+.pipeline-col:hover { background: var(--navy-mid); }
+.pipeline-col.active { border-top-color: var(--gold); background: var(--navy-mid); }
+
+.pipeline-col .p-label {
+  font-size: 11px;
+  color: var(--white-dim);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 4px;
+}
+.pipeline-col .p-count {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  color: var(--gold);
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* ── CARDS GRID ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+}
+
+.card {
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+  animation: fadeUp .3s ease both;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--navy-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.card-company {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--gold-light);
+  line-height: 1.2;
+}
+.card-role {
+  font-size: 12px;
+  color: var(--white-dim);
+  margin-top: 3px;
+}
+
+.status-badge {
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+  letter-spacing: .3px;
+}
+
+.card-body { padding: 14px 18px; }
+
+.card-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--white-dim);
+  align-items: center;
+}
+.card-row .icon { width: 14px; text-align: center; opacity: .7; }
+.card-row .val { color: var(--white); }
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+.tag {
+  background: var(--navy-light);
+  border: 1px solid var(--navy-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 10px;
+  color: var(--white-dim);
+}
+
+.card-footer {
+  padding: 10px 18px;
+  border-top: 1px solid var(--navy-border);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-sm {
+  background: var(--navy-light);
+  border: 1px solid var(--navy-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: var(--white-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-sm:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+.btn-sm.gold { border-color: var(--gold-dim); color: var(--gold); }
+.btn-sm.gold:hover { background: var(--gold-dim); color: var(--navy-deep); }
+
+/* ── MODAL ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(5,8,20,.85);
+  z-index: 200;
+  overflow-y: auto;
+  padding: 30px 16px;
+  backdrop-filter: blur(4px);
+}
+.overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+.modal {
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 760px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy-light) 100%);
+  padding: 22px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--navy-border);
+}
+
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  color: var(--gold);
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: var(--white-dim);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color .15s;
+}
+.btn-close:hover { color: var(--white); }
+
+.modal-body { padding: 24px 28px; }
+
+.form-section {
+  margin-bottom: 22px;
+}
+.form-section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--navy-border);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-grid.single { grid-template-columns: 1fr; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(--white-dim); text-transform: uppercase; letter-spacing: .6px; }
+.field input, .field select, .field textarea {
+  background: var(--navy-mid);
+  border: 1px solid var(--navy-border);
+  border-radius: 7px;
+  padding: 9px 12px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold-dim); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field select option { background: var(--navy-mid); }
+
+.modal-footer {
+  padding: 18px 28px;
+  border-top: 1px solid var(--navy-border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ── LOG SECTION ── */
+.log-entry {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--navy-border);
+  font-size: 12px;
+}
+.log-date { color: var(--gold-dim); white-space: nowrap; min-width: 80px; }
+.log-text { color: var(--white-dim); }
+
+/* ── EMAIL MODAL ── */
+.email-area {
+  background: var(--navy-mid);
+  border: 1px solid var(--navy-border);
+  border-radius: 8px;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--white);
+  width: 100%;
+  min-height: 280px;
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+}
+.email-area:focus { border-color: var(--gold-dim); }
+
+.generating { color: var(--gold-dim); font-style: italic; font-size: 12px; padding: 8px 0; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--white-dim);
+}
+.empty-state .es-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
+.empty-state .es-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--white); margin-bottom: 8px; }
+
+/* STATUS COLORS */
+.s-to-send    { background: rgba(100,100,120,.25); color: #9b9bbd; border: 1px solid #3a3a5c; }
+.s-sent       { background: rgba(41,128,185,.2);   color: #74b9e7; border: 1px solid #1a4a70; }
+.s-waiting    { background: rgba(243,156,18,.18);  color: #f0c060; border: 1px solid #6a4a10; }
+.s-2nd-email  { background: rgba(155,89,182,.2);   color: #c39bd3; border: 1px solid #5a2d7a; }
+.s-replied    { background: rgba(39,174,96,.2);    color: #6fcf97; border: 1px solid #145a32; }
+.s-interview  { background: rgba(22,160,133,.2);   color: #48c9b0; border: 1px solid #0e5245; }
+.s-offer      { background: rgba(201,168,76,.25);  color: var(--gold-light); border: 1px solid var(--gold-dim); }
+.s-rejected   { background: rgba(192,57,43,.2);    color: #e87676; border: 1px solid #6a1a1a; }
+.s-expired    { background: rgba(80,80,80,.2);     color: #888; border: 1px solid #444; }
+
+/* Priority dot */
+.priority-dot {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;
+}
+.p-high { background: #e74c3c; }
+.p-medium { background: var(--gold); }
+.p-low { background: #27ae60; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+  .header-stats { display: none; }
+  .filters-bar { padding: 12px 16px; }
+  .main { padding: 18px 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .modal-body { padding: 18px 16px; }
+  .modal-header { padding: 16px; }
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid var(--gold-dim);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.type-badge {
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 500;
+}
+.type-spontaneous { background: rgba(201,168,76,.15); color: var(--gold-dim); border: 1px solid var(--gold-dim); }
+.type-listing { background: rgba(41,128,185,.15); color: #5dade2; border: 1px solid #1a4a70; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Hunt<span>CRM</span></div>
+  <div class="header-stats">
+    <div class="stat-pill">Total: <strong id="stat-total">0</strong></div>
+    <div class="stat-pill">Active: <strong id="stat-active">0</strong></div>
+    <div class="stat-pill">Interviews: <strong id="stat-interviews">0</strong></div>
+  </div>
+  <button class="btn-primary" onclick="openAddModal()">+ Add Application</button>
+</header>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <input class="search-box" type="text" placeholder="🔍  Search company, role, city..." oninput="renderCards()" id="search-input">
+  <select class="filter-select" onchange="renderCards()" id="filter-status">
+    <option value="">All Statuses</option>
+    <option>To Send</option>
+    <option>Sent</option>
+    <option>Waiting</option>
+    <option>2nd Email Sent</option>
+    <option>Replied</option>
+    <option>Interview Scheduled</option>
+    <option>Offer Received</option>
+    <option>Rejected</option>
+    <option>Expired</option>
+  </select>
+  <select class="filter-select" onchange="renderCards()" id="filter-category">
+    <option value="">All Categories</option>
+    <option>Electronic Engineering</option>
+    <option>Electrical Engineering</option>
+    <option>Marine / Naval</option>
+    <option>Defense & Security</option>
+    <option>IT / Software</option>
+    <option>Driver</option>
+    <option>Logistics</option>
+    <option>Other</option>
+  </select>
+  <select class="filter-select" onchange="renderCards()" id="filter-type">
+    <option value="">All Types</option>
+    <option>Job Listing</option>
+    <option>Spontaneous</option>
+  </select>
+  <select class="filter-select" onchange="renderCards()" id="filter-priority">
+    <option value="">All Priorities</option>
+    <option>High</option>
+    <option>Medium</option>
+    <option>Low</option>
+  </select>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- PIPELINE -->
+  <div class="pipeline" id="pipeline-bar"></div>
+
+  <!-- CARDS -->
+  <div class="cards-grid" id="cards-container"></div>
+  <div id="empty-state" class="empty-state" style="display:none">
+    <div class="es-icon">⚓</div>
+    <div class="es-title">No applications yet</div>
+    <p>Click "Add Application" to start tracking your job hunt.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ADD / EDIT MODAL
+════════════════════════════════════════════ -->
+<div class="overlay" id="modal-overlay">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title" id="modal-title">New Application</div>
+    <button class="btn-close" onclick="closeModal()">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <!-- COMPANY INFO -->
+    <div class="form-section">
+      <div class="form-section-title">Company</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Company Name *</label>
+          <input type="text" id="f-company" placeholder="e.g. Leonardo S.p.A.">
+        </div>
+        <div class="field">
+          <label>Contact Name</label>
+          <input type="text" id="f-contact" placeholder="e.g. Marco Rossi">
+        </div>
+        <div class="field">
+          <label>Main Email</label>
+          <input type="email" id="f-email" placeholder="info@company.com">
+        </div>
+        <div class="field">
+          <label>HR / Hiring Email</label>
+          <input type="email" id="f-hr-email" placeholder="hr@company.com">
+        </div>
+        <div class="field">
+          <label>Other Emails</label>
+          <input type="text" id="f-other-emails" placeholder="email2@..., email3@...">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="text" id="f-phone" placeholder="+39 ...">
+        </div>
+        <div class="field">
+          <label>City</label>
+          <input type="text" id="f-city" placeholder="e.g. Ravenna">
+        </div>
+        <div class="field">
+          <label>Address</label>
+          <input type="text" id="f-address" placeholder="Via ...">
+        </div>
+      </div>
+    </div>
+
+    <!-- JOB INFO -->
+    <div class="form-section">
+      <div class="form-section-title">Position</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Job Title *</label>
+          <input type="text" id="f-role" placeholder="e.g. Electronic Engineer">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="f-category">
+            <option value="">Select...</option>
+            <option>Electronic Engineering</option>
+            <option>Electrical Engineering</option>
+            <option>Marine / Naval</option>
+            <option>Defense & Security</option>
+            <option>IT / Software</option>
+            <option>Driver</option>
+            <option>Logistics</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Salary / Range</label>
+          <input type="text" id="f-salary" placeholder="e.g. €30,000 – €38,000">
+        </div>
+        <div class="field">
+          <label>Working Hours</label>
+          <input type="text" id="f-hours" placeholder="e.g. Mon–Fri 9–18">
+        </div>
+        <div class="field">
+          <label>Application Type</label>
+          <select id="f-type">
+            <option>Job Listing</option>
+            <option>Spontaneous</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Priority</label>
+          <select id="f-priority">
+            <option>Medium</option>
+            <option>High</option>
+            <option>Low</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Listing URL</label>
+          <input type="url" id="f-url" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label>Source Platform</label>
+          <input type="text" id="f-source" placeholder="e.g. LinkedIn, Indeed, Company site">
+        </div>
+        <div class="field">
+          <label>Application Date</label>
+          <input type="date" id="f-date">
+        </div>
+        <div class="field">
+          <label>Deadline</label>
+          <input type="date" id="f-deadline">
+        </div>
+      </div>
+      <div class="form-grid single" style="margin-top:12px">
+        <div class="field">
+          <label>Required Skills / Knowledge</label>
+          <input type="text" id="f-skills" placeholder="e.g. PLC, AutoCAD, C++, radar systems">
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="form-section">
+      <div class="form-section-title">Status & Notes</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Status</label>
+          <select id="f-status">
+            <option>To Send</option>
+            <option>Sent</option>
+            <option>Waiting</option>
+            <option>2nd Email Sent</option>
+            <option>Replied</option>
+            <option>Interview Scheduled</option>
+            <option>Offer Received</option>
+            <option>Rejected</option>
+            <option>Expired</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Add Log Entry</label>
+          <input type="text" id="f-log-entry" placeholder="e.g. Called HR, left voicemail">
+        </div>
+      </div>
+      <div class="form-grid single" style="margin-top:12px">
+        <div class="field">
+          <label>Notes</label>
+          <textarea id="f-notes" placeholder="Impressions, interview details, anything useful..."></textarea>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn-sm" onclick="closeModal()">Cancel</button>
+    <button class="btn-sm gold" onclick="openEmailModal(null, true)" id="btn-email-from-form" style="display:none">✉ Generate Email</button>
+    <button class="btn-primary" onclick="saveApplication()">Save</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW / LOG MODAL
+════════════════════════════════════════════ -->
+<div class="overlay" id="view-overlay">
+<div class="modal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title" id="view-title">Company Name</div>
+      <div style="font-size:12px;color:var(--white-dim);margin-top:3px" id="view-role"></div>
+    </div>
+    <button class="btn-close" onclick="closeViewModal()">✕</button>
+  </div>
+  <div class="modal-body" id="view-body"></div>
+  <div class="modal-footer">
+    <button class="btn-sm" onclick="closeViewModal()">Close</button>
+    <button class="btn-sm gold" onclick="openEmailFromView()">✉ Email</button>
+    <button class="btn-sm gold" onclick="editFromView()">✏ Edit</button>
+    <button class="btn-sm" onclick="deleteFromView()" style="color:#e87676;border-color:#6a1a1a">🗑 Delete</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     EMAIL MODAL
+════════════════════════════════════════════ -->
+<div class="overlay" id="email-overlay">
+<div class="modal">
+  <div class="modal-header">
+    <div class="modal-title">✉ Email Draft</div>
+    <button class="btn-close" onclick="closeEmailModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="field">
+        <label>Subject</label>
+        <input type="text" id="email-subject" placeholder="Subject line...">
+      </div>
+      <div class="field">
+        <label>To</label>
+        <input type="text" id="email-to" placeholder="recipient@company.com">
+      </div>
+    </div>
+    <div class="field">
+      <label>Body (editable)</label>
+      <div id="email-generating" class="generating" style="display:none">
+        <span class="spinner"></span> Generating email with AI...
+      </div>
+      <textarea class="email-area" id="email-body" placeholder="Email body will appear here..."></textarea>
+    </div>
+    <p style="font-size:11px;color:var(--white-dim);margin-top:8px">
+      💡 Modifica liberamente il testo. Allega il CV quando invii da Gmail/Outlook.
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-sm" onclick="regenerateEmail()">↺ Regenerate</button>
+    <button class="btn-sm" onclick="closeEmailModal()">Close</button>
+    <button class="btn-primary" onclick="copyEmail()">📋 Copy Email</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA LAYER
+// ══════════════════════════════════════════
+const STORAGE_KEY = 'huntcrm_v1';
+const INITIAL_APPS = [
+  {
+    id: "init002",
+    company: "GEM Elettronica S.r.l.",
+    contact: "",
+    email: "info@gemrad.com",
+    hrEmail: "career@gemrad.com",
+    otherEmails: "rd@gemrad.com",
+    phone: "+39 0735 59051",
+    city: "San Benedetto del Tronto (AP)",
+    address: "Via Amerigo Vespucci, 9",
+    role: "Ingegnere Elettronico / R&D",
+    category: "Defense & Security",
+    salary: "",
+    hours: "Full time",
+    type: "Spontaneous",
+    priority: "High",
+    url: "https://www.gemrad.com",
+    source: "Ricerca diretta",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Radar, navigazione, giroscopi ottici, visione notturna, firmware, hardware elettronico",
+    status: "To Send",
+    notes: "Azienda difesa con 60+ ingegneri. Produce radar, giroscopi, navigazione inerziale. Molto simile ad ASTIM. Email candidature dedicata: career@gemrad.com. Fatturato 30M€+.",
+    log: []
+  },
+  {
+    id: "init003",
+    company: "UNITEC S.p.A.",
+    contact: "",
+    email: "info@unitec-group.com",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "+39 0543 17 10 230",
+    city: "Lugo (RA) / Bertinoro (FC)",
+    address: "Via Tratturo, 320 – Bertinoro (FC)",
+    role: "Progettista Elettronico / Computer Vision Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://unitec.altamiraweb.com/",
+    source: "Indeed / LinkedIn",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica, automazione, visione artificiale, PLC, software",
+    status: "To Send",
+    notes: "Gruppo internazionale con sede a Lugo (RA). Cercano ingegneri elettronici e Computer Vision Engineer. Portale candidature: unitec.altamiraweb.com. 600+ dipendenti, 65 paesi.",
+    log: []
+  },
+  {
+    id: "init004",
+    company: "COMECER S.p.A.",
+    contact: "",
+    email: "info@comecer.com",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "+39 0546 656375",
+    city: "Castel Bolognese (RA)",
+    address: "Via Maestri del Lavoro, 90",
+    role: "Ingegnere Elettronico / Programmatore PLC",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://www.comecer.com/it/lavora-con-noi/",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "PLC, automazione, elettronica, sistemi farmaceutici, software embedded",
+    status: "To Send",
+    notes: "Leader mondiale sistemi contenimento farmaceutica e radiofarmaceutica. Parte gruppo canadese ATS. Internazionale, lavorano in inglese. Cercano regolarmente profili elettronici.",
+    log: []
+  },
+  {
+    id: "init005",
+    company: "Ingeteam S.r.l.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Castel Bolognese (RA)",
+    address: "",
+    role: "Tecnico Service – Energie Rinnovabili",
+    category: "Electrical Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://it.indeed.com/q-elettronica-l-faenza,-emilia-romagna-offerte-lavoro.html",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Laurea/diploma elettrica o elettronica, automazione, energie rinnovabili",
+    status: "To Send",
+    notes: "Azienda spagnola internazionale a Castel Bolognese. Cerca tecnici service nel settore energie rinnovabili. Gruppo internazionale, probabile uso dell'inglese.",
+    log: []
+  },
+  {
+    id: "init006",
+    company: "Elettronica GF S.r.l.",
+    contact: "",
+    email: "curriculum@enuma.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Faenza / Provincia di Ravenna",
+    address: "",
+    role: "Sviluppatore Software / Tecnico Elettronico",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Spontaneous",
+    priority: "Medium",
+    url: "",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica, telecomunicazioni, informatica, software",
+    status: "To Send",
+    notes: "Azienda elettronica nella provincia di Ravenna. Cercano sviluppatori e tecnici con laurea in ingegneria elettronica. Verificare email sul sito ufficiale prima di inviare.",
+    log: []
+  },
+  {
+    id: "init007",
+    company: "Areajob S.p.A. – Filiale Faenza",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Faenza (RA)",
+    address: "",
+    role: "Autista Consegnatario – Patente B",
+    category: "Driver",
+    salary: "",
+    hours: "Full time, Lun–Ven",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://www.areajob.it/offerte",
+    source: "Jobijoba / Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, flessibilità oraria, esperienza consegne preferibile",
+    status: "To Send",
+    notes: "Ricerca autista consegnatario patente B per distribuzione prodotti alimentari zona Romagna. Magazzino Faenza. Full time lun-ven. Inserimento a tempo determinato con prospettiva assunzione. Candidarsi su areajob.it/offerte",
+    log: []
+  },
+  {
+    id: "init008",
+    company: "Randstad Italia – Filiale Forlì",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Forlì (FC)",
+    address: "",
+    role: "Autista Consegnatario – Patente B",
+    category: "Driver",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://www.randstad.it/offerte-lavoro/",
+    source: "Bakeca / Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, esperienza guida furgone, affidabilità",
+    status: "To Send",
+    notes: "Randstad Forlì cerca autista consegnatario per azienda di stampa materie plastiche. Full time. Candidarsi direttamente sul sito Randstad o in filiale a Forlì.",
+    log: []
+  },
+  {
+    id: "init009",
+    company: "e-work S.p.A. – Filiale Forlì",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Forlì (FC)",
+    address: "",
+    role: "Autista Consegnatario – Patente B",
+    category: "Driver",
+    salary: "",
+    hours: "Full time, Lun–Ven 7:00–17:00",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.e-workspa.it/candidati/offerte-di-lavoro/",
+    source: "Lavoro.it / Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, esperienza autista consegnatario, disponibilità occasionale sabato",
+    status: "To Send",
+    notes: "e-work seleziona autisti consegnatari patente B per importante azienda logistica zona Forlì. Orario full time lun-ven 7-17, disponibilità occasionale sabato. Candidarsi sul portale e-workspa.it",
+    log: []
+  },
+  {
+    id: "init010",
+    company: "ADHR Group – Filiale Lugo",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Lugo (RA)",
+    address: "",
+    role: "Magazziniere / Autista Patente B",
+    category: "Driver",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://www.adhr.it/offerte-lavoro/",
+    source: "Lavoro.it",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, distribuzione prodotti, gestione merce, mezzo aziendale",
+    status: "To Send",
+    notes: "ADHR filiale Lugo cerca magazziniere/autista patente B. Distribuzione prodotti presso clienti con mezzo aziendale. Zona Lugo (RA). Candidarsi su adhr.it",
+    log: []
+  }  ,{
+    id: "init011",
+    company: "Marchesini Group S.p.A.",
+    contact: "",
+    email: "info@marchesini.com",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "+39 051 6564611",
+    city: "Pianoro (BO)",
+    address: "Via Nazionale, 100",
+    role: "Progettista Tecnico Elettronico / Automation Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.marchesini.com/en/corporate/work-with-us",
+    source: "Indeed / LinkedIn",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica/automazione, programmazione macchine automatiche, motion control, PLC, inglese",
+    status: "To Send",
+    notes: "Multinazionale leader packaging farmaceutico e cosmetico. 14 divisioni produttive, presente in 120 paesi. Cercano regolarmente progettisti elettronici e automation engineer. Richiedono inglese fluente. Sede a Pianoro (BO), 30 min da Ravenna.",
+    log: []
+  },
+  {
+    id: "init012",
+    company: "Coesia S.p.A.",
+    contact: "",
+    email: "contact@coesia.com",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "+39 051 6474111",
+    city: "Bologna (BO)",
+    address: "Via Battindarno, 91",
+    role: "Electronics Engineer / Automation Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.coesia.com/it/career-opportunities",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica, automazione industriale, packaging, embedded, inglese fluente",
+    status: "To Send",
+    notes: "Gruppo industriale fondato nel 1923 a Bologna, 9.000+ dipendenti, 38 paesi. Cercano Electronics Engineer. Richiedono inglese fluente – ottimo per Yanal. Azienda molto internazionale.",
+    log: []
+  },
+  {
+    id: "init013",
+    company: "Marposs S.p.A.",
+    contact: "",
+    email: "hr@marposs.com",
+    hrEmail: "hr@marposs.com",
+    otherEmails: "",
+    phone: "+39 051 899111",
+    city: "Bentivoglio (BO)",
+    address: "Via Saliceto, 13",
+    role: "Progettista Elettronico Hardware",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.marposs.com/eng/careers",
+    source: "Indeed / sito aziendale",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica, progettazione hardware digitale/analogico, FPGA, misura e controllo industriale",
+    status: "To Send",
+    notes: "Leader mondiale in misura di precisione e controllo industriale. 1000+ dipendenti, fatturato 100M€+. Cercano attivamente Progettista Elettronico Hardware con conoscenza FPGA e dispositivi digitali/analogici. Bentivoglio è a ~40 min da Ravenna.",
+    log: []
+  },
+  {
+    id: "init014",
+    company: "Datalogic S.p.A.",
+    contact: "",
+    email: "careers@datalogic.com",
+    hrEmail: "careers@datalogic.com",
+    otherEmails: "",
+    phone: "",
+    city: "Monte San Pietro (BO) / Calderara di Reno (BO)",
+    address: "",
+    role: "R&D Engineer / Field Service Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.datalogic.com/ita/lavora-con-noi-offerte-di-lavoro-if-3240.html",
+    source: "Indeed / sito aziendale",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica, lettori barcode, sensori, sistemi di visione, R&D, inglese",
+    status: "To Send",
+    notes: "Azienda leader mondiale in barcode reader, sensori, sistemi di visione e marcatura laser. 2400+ dipendenti, presente in tutto il mondo. Cercano R&D Engineer e Field Service Engineer. Lavorano totalmente in inglese – perfetto per Yanal.",
+    log: []
+  },
+  {
+    id: "init015",
+    company: "IMA Automation S.p.A.",
+    contact: "",
+    email: "careers@ima.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "+39 051 6652111",
+    city: "Ozzano dell'Emilia (BO)",
+    address: "Via Emilia, 428-442",
+    role: "Ingegnere Elettronico / Software Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Spontaneous",
+    priority: "Medium",
+    url: "https://www.ima.it/careers",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica, automazione, macchine automatiche, software macchina, PLC",
+    status: "To Send",
+    notes: "IMA Group è uno dei maggiori produttori mondiali di macchine automatiche per il packaging. Sede principale a Ozzano dell'Emilia (BO). Gruppo internazionale, inglese usato quotidianamente. Cercano ingegneri elettronici e software per progettazione macchine.",
+    log: []
+  }  ,{
+    id: "init016",
+    company: "Unigrà S.p.A.",
+    contact: "",
+    email: "careers@unigra.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "+39 0545 989511",
+    city: "Conselice (RA)",
+    address: "Via Gardizza, 9/B",
+    role: "Electrical Project Engineer / Ingegnere Elettronico",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://unigrasrl.altamiraweb.com/",
+    source: "Glassdoor / Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettrica/elettronica, impianti industriali, progettazione elettrica",
+    status: "To Send",
+    notes: "Gruppo alimentare internazionale (fatturato 629M€+) con sede a Conselice (RA). Cercano Electrical Project Engineer. Portale candidature: unigrasrl.altamiraweb.com. Presenza globale, probabile uso dell'inglese.",
+    log: []
+  },
+  {
+    id: "init017",
+    company: "Bureau Veritas Italia",
+    contact: "",
+    email: "careers.italy@bureauveritas.com",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna",
+    address: "",
+    role: "Ingegnere Tecnico / Inspector",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.bureauveritas.it/careers",
+    source: "Indeed / sito aziendale",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica/meccanica, ispezione impianti, certificazione, inglese",
+    status: "To Send",
+    notes: "Leader mondiale in ispezione, verifica e certificazione. Presente a Ravenna per il polo petrolchimico offshore. Cercano ingegneri giovani per pianificazione e project management. Gruppo francese, lavoro totalmente in inglese.",
+    log: []
+  },
+  {
+    id: "init018",
+    company: "Saipem S.p.A.",
+    contact: "",
+    email: "careers@saipem.com",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna / Fano (PU)",
+    address: "",
+    role: "Electronic Technician / Asset Technology Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.saipem.com/en/careers",
+    source: "Indeed / sito aziendale",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica/elettrica, sistemi di controllo, offshore, robotica, inglese",
+    status: "To Send",
+    notes: "Gigante mondiale dell'ingegneria energetica offshore/onshore. Cerca Electronic Technician e Asset Technology Engineer con laurea in ingegneria elettronica. Presenza a Ravenna per progetti offshore Adriatico. Lavora totalmente in inglese – perfetto per Yanal.",
+    log: []
+  },
+  {
+    id: "init019",
+    company: "ENI S.p.A. – Distretto Adriatico",
+    contact: "",
+    email: "careers@eni.com",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna",
+    address: "",
+    role: "Addetto Tecnico Piattaforme / Field Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "High",
+    url: "https://www.eni.com/it-IT/careers.html",
+    source: "Ticonsiglio / sito aziendale",
+    date: "2026-05-20",
+    deadline: "2026-05-21",
+    skills: "Ingegneria elettronica/meccanica, sicurezza impianti, offshore, inglese",
+    status: "To Send",
+    notes: "ENI ha selezioni aperte con sede a Ravenna per impianti onshore/offshore – scadenza 21 maggio 2026! Distretto Adriatico operativo a Ravenna. Multinazionale, inglese indispensabile. URGENTE – candidarsi subito.",
+    log: []
+  },
+  {
+    id: "init020",
+    company: "BRT Corriere Espresso",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna / Forlì",
+    address: "",
+    role: "Autista Corriere Patente B",
+    category: "Driver",
+    salary: "€1.500–1.600 netti/mese",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://www.brt.it/it/lavora-con-noi",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, puntualità, gestione consegne, smartphone",
+    status: "To Send",
+    notes: "Corriere espresso nazionale. Assumono autisti patente B per consegne zona Ravenna/Forlì. Stipendio medio ~1.568€ netti/mese. Candidarsi sul sito brt.it sezione lavora con noi.",
+    log: []
+  },
+  {
+    id: "init021",
+    company: "DHL Express Italy",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna / Forlì / Bologna",
+    address: "",
+    role: "Corriere / Driver Patente B",
+    category: "Driver",
+    salary: "€1.500–1.600 netti/mese",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://careers.dhl.com/global/en",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, inglese base, organizzazione consegne, app smartphone",
+    status: "To Send",
+    notes: "Multinazionale tedesca, uno dei migliori corrieri per stipendio (~1.590€ netti). Assumono in Emilia-Romagna. Ambiente internazionale, inglese apprezzato. Candidarsi su careers.dhl.com.",
+    log: []
+  },
+  {
+    id: "init022",
+    company: "Amazon Logistics Italy",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Forlì / Ravenna",
+    address: "",
+    role: "Delivery Driver / Autista Last Mile",
+    category: "Driver",
+    salary: "€1.400–1.500 netti/mese",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://hiring.amazon.com/it/it",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, smartphone, capacità di orientamento, flessibilità oraria",
+    status: "To Send",
+    notes: "Amazon cerca autisti last mile zona Forlì/Ravenna tramite partner logistici. Patente B sufficiente. Candidarsi su hiring.amazon.com o tramite agenzie area.",
+    log: []
+  },
+  {
+    id: "init023",
+    company: "Poste Italiane S.p.A.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna / Provincia RA",
+    address: "",
+    role: "Portalettere / Addetto Recapito",
+    category: "Driver",
+    salary: "€1.300–1.700 netti/mese",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Low",
+    url: "https://www.posteitaliane.it/it/lavora-con-noi.html",
+    source: "Ricerca diretta",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, patentino ciclomotore preferibile, resistenza fisica, orientamento",
+    status: "To Send",
+    notes: "Cercano portalettere nella provincia di Ravenna. Patente B richiesta. Richiede italiano base per comunicazioni con clienti – verificare requisiti. Candidarsi su posteitaliane.it.",
+    log: []
+  },
+  {
+    id: "init024",
+    company: "Fabbri Eric Corriere",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "333 585 5145",
+    city: "Savignano sul Rubicone (FC)",
+    address: "Via Pietà, 96",
+    role: "Autista Consegnatario – Patente B",
+    category: "Driver",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "",
+    source: "Lavoro.it",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Patente B, serietà, puntualità, rientro in giornata",
+    status: "To Send",
+    notes: "Ditta di trasporti dal 1999, cerca autista consegnatario da magazzino zona Panighina. Rientro in giornata. Contatto diretto: 333 5855145 o presentarsi in Via Pietà 96 Savignano sul Rubicone.",
+    log: []
+  },
+  {
+    id: "init025",
+    company: "VEM Sistemi S.p.A.",
+    contact: "",
+    email: "info@vemsistemi.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Forlì (FC)",
+    address: "",
+    role: "Tecnico IT / Network Engineer",
+    category: "IT / Software",
+    salary: "",
+    hours: "Full time",
+    type: "Spontaneous",
+    priority: "Medium",
+    url: "https://www.vemsistemi.it/careers",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Networking, sistemi IT, infrastrutture, inglese tecnico",
+    status: "To Send",
+    notes: "Azienda IT con sede a Forlì, si occupa di infrastrutture di rete e sistemi. Background elettronico di Yanal utile per ruoli tecnici IT. Candidatura spontanea consigliata.",
+    log: []
+  },
+  {
+    id: "init026",
+    company: "Tema Sinergie S.p.A.",
+    contact: "",
+    email: "info@temasinergie.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Faenza (RA)",
+    address: "",
+    role: "Help Desk Technician / Tecnico Elettronico",
+    category: "IT / Software",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://www.temasinergie.it/lavora-con-noi",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Laurea ingegneria elettronica/informatica/telecomunicazioni, assistenza tecnica, problem solving",
+    status: "To Send",
+    notes: "Azienda di Faenza che cerca Help Desk Technician con laurea in ingegneria elettronica o equivalente. Ruolo tecnico di supporto post-vendita. Buon match col profilo di Yanal.",
+    log: []
+  },
+  {
+    id: "init027",
+    company: "Gruppo Hera S.p.A.",
+    contact: "",
+    email: "careers@gruppohera.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna / Bologna",
+    address: "",
+    role: "Ingegnere / Tecnico Impianti",
+    category: "Electrical Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Spontaneous",
+    priority: "Medium",
+    url: "https://www.gruppohera.it/gruppo/lavora-con-noi",
+    source: "Ricerca diretta",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettrica/elettronica/ambientale, impianti energetici, gestione tecnica",
+    status: "To Send",
+    notes: "Multiutility presente a Ravenna e Bologna. Gestisce energia, acqua, rifiuti. Cercano ingegneri per impianti. Portale candidature attivo. Azienda grande e stabile.",
+    log: []
+  },
+  {
+    id: "init028",
+    company: "Restart Engineering S.r.l.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Faenza (RA)",
+    address: "",
+    role: "Progettista Impianti Elettrici / Ingegnere",
+    category: "Electrical Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://it.indeed.com/cmp/Restart-Engineering",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Progettazione impianti elettrici, fotovoltaico, AutoCAD, laurea ingegneria",
+    status: "To Send",
+    notes: "Azienda di ingegneria a Faenza. Cerca progettisti impianti elettrici e fotovoltaici. Candidarsi tramite Indeed o direttamente.",
+    log: []
+  },
+  {
+    id: "init029",
+    company: "Biesse Sistemi S.r.l.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Ravenna",
+    address: "",
+    role: "Tecnico Elettrico / Preventivista",
+    category: "Electrical Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://it.indeed.com/cmp/Biesse-Sistemi-srl",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Impianti elettrici, preventivi tecnici, laurea/diploma elettrotecnica, patente B",
+    status: "To Send",
+    notes: "Azienda di Ravenna nel settore elettrico industriale. Cerca tecnico elettrico con patente B (fornitura mezzo aziendale). Candidarsi su Indeed.",
+    log: []
+  },
+  {
+    id: "init030",
+    company: "Costell S.r.l.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Forlì (FC)",
+    address: "",
+    role: "Service Engineer",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://it.indeed.com/cmp/Costell",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica/meccanica, assistenza tecnica su campo, PLC, problem solving",
+    status: "To Send",
+    notes: "Azienda di Forlì che cerca Service Engineer. Ruolo di assistenza tecnica su impianti e macchinari. Buona corrispondenza col profilo di Yanal. Candidarsi tramite Indeed.",
+    log: []
+  },
+  {
+    id: "init031",
+    company: "Enginium S.r.l.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Bologna (BO)",
+    address: "",
+    role: "Sviluppatore Embedded / Ingegnere Automazione",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://it.indeed.com/cmp/Enginium-Srl",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Sviluppo embedded, C/C++, Linux, automazione industriale, ingegneria elettronica",
+    status: "To Send",
+    notes: "Azienda bolognese specializzata in sviluppo embedded per automazione industriale. Cerca ingegneri elettronici con skills C/C++ e Linux. Bologna a ~1h da Ravenna.",
+    log: []
+  },
+  {
+    id: "init032",
+    company: "Teleimpianti S.r.l.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Bologna (BO)",
+    address: "",
+    role: "System Engineer – Building Automation",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://it.indeed.com/cmp/Teleimpianti",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica/elettrica, BMS, building automation, sistemi di supervisione",
+    status: "To Send",
+    notes: "Azienda di Bologna che cerca System Engineer per area Building Automation (gestione edifici intelligenti). Profilo elettronico molto adatto. Candidarsi su Indeed.",
+    log: []
+  },
+  {
+    id: "init033",
+    company: "SACMI Imola S.c.",
+    contact: "",
+    email: "careers@sacmi.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "+39 0542 607111",
+    city: "Imola (BO)",
+    address: "Via Selice Provinciale, 17/A",
+    role: "Sistemista / Ingegnere Elettronico",
+    category: "Electronic Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Spontaneous",
+    priority: "High",
+    url: "https://www.sacmi.it/it-IT/Corporate/Careers",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria elettronica/informatica, automazione, sistemi olfattivi, PLC, inglese",
+    status: "To Send",
+    notes: "Cooperativa industriale leader mondiale nelle macchine per ceramica, packaging e food. 5.000+ dipendenti, presente in 40+ paesi. Sede a Imola, 40 min da Ravenna. Cercano sistemisti e ingegneri elettronici. Azienda molto internazionale.",
+    log: []
+  },
+  {
+    id: "init034",
+    company: "Mirabilandia S.r.l.",
+    contact: "",
+    email: "lavoro@mirabilandia.it",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Savio (RA)",
+    address: "SS Adriatica 16, Savio di Ravenna",
+    role: "RSPP / Tecnico Sicurezza / Addetto Tecnico",
+    category: "Other",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Low",
+    url: "https://it.indeed.com/cmp/Mirabilandia",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Sicurezza sul lavoro, impianti elettrici, problem solving, patente B",
+    status: "To Send",
+    notes: "Parco divertimenti a Savio (RA), vicinissimo a Ravenna. Cercano RSPP e tecnici. Background elettronico utile per manutenzione impianti. Ambiente diverso ma stabile.",
+    log: []
+  },
+  {
+    id: "init035",
+    company: "Bunge Italy S.r.l.",
+    contact: "",
+    email: "",
+    hrEmail: "",
+    otherEmails: "",
+    phone: "",
+    city: "Porto Corsini (RA)",
+    address: "",
+    role: "Process Engineer / Tecnico Impianti",
+    category: "Electrical Engineering",
+    salary: "",
+    hours: "Full time",
+    type: "Job Listing",
+    priority: "Medium",
+    url: "https://www.bunge.com/careers",
+    source: "Indeed",
+    date: "2026-05-20",
+    deadline: "",
+    skills: "Ingegneria chimica/elettrica/meccanica, impianti industriali, processo produttivo, inglese",
+    status: "To Send",
+    notes: "Multinazionale americana (agribusiness) con impianto a Porto Corsini (Ravenna). Cerca Process Engineer. Lavorano in inglese – molto adatto a Yanal. Candidarsi su bunge.com/careers.",
+    log: []
+  }
+];
+
+let apps;
+const stored = localStorage.getItem(STORAGE_KEY);
+if (!stored) {
+  apps = [...INITIAL_APPS];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
+} else {
+  apps = JSON.parse(stored);
+}
+let editingId = null;
+let viewingId = null;
+let activeFilter = '';
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+// ══════════════════════════════════════════
+//  STATUS CONFIG
+// ══════════════════════════════════════════
+const STATUS_CLASS = {
+  'To Send': 's-to-send',
+  'Sent': 's-sent',
+  'Waiting': 's-waiting',
+  '2nd Email Sent': 's-2nd-email',
+  'Replied': 's-replied',
+  'Interview Scheduled': 's-interview',
+  'Offer Received': 's-offer',
+  'Rejected': 's-rejected',
+  'Expired': 's-expired'
+};
+
+const STATUS_EMOJI = {
+  'To Send':'📝','Sent':'📤','Waiting':'⏳','2nd Email Sent':'📧',
+  'Replied':'💬','Interview Scheduled':'📞','Offer Received':'✅',
+  'Rejected':'❌','Expired':'🚫'
+};
+
+const ACTIVE_STATUSES = ['To Send','Sent','Waiting','2nd Email Sent','Replied','Interview Scheduled'];
+
+// ══════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════
+function renderAll() {
+  renderPipeline();
+  renderCards();
+  renderStats();
+}
+
+function renderStats() {
+  const total = apps.length;
+  const active = apps.filter(a => ACTIVE_STATUSES.includes(a.status)).length;
+  const interviews = apps.filter(a => a.status === 'Interview Scheduled').length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-interviews').textContent = interviews;
+}
+
+function renderPipeline() {
+  const statuses = ['To Send','Sent','Waiting','2nd Email Sent','Replied','Interview Scheduled','Offer Received','Rejected'];
+  const bar = document.getElementById('pipeline-bar');
+  bar.innerHTML = statuses.map(s => {
+    const count = apps.filter(a => a.status === s).length;
+    const isActive = activeFilter === s;
+    return `<div class="pipeline-col ${isActive?'active':''}" onclick="toggleFilter('${s}')">
+      <div class="p-label">${STATUS_EMOJI[s]} ${s}</div>
+      <div class="p-count">${count}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFilter(s) {
+  activeFilter = activeFilter === s ? '' : s;
+  document.getElementById('filter-status').value = activeFilter;
+  renderAll();
+}
+
+function getFiltered() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const fs = document.getElementById('filter-status').value;
+  const fc = document.getElementById('filter-category').value;
+  const ft = document.getElementById('filter-type').value;
+  const fp = document.getElementById('filter-priority').value;
+
+  return apps.filter(a => {
+    if (q && !`${a.company} ${a.role} ${a.city} ${a.contact}`.toLowerCase().includes(q)) return false;
+    if (fs && a.status !== fs) return false;
+    if (fc && a.category !== fc) return false;
+    if (ft && a.type !== ft) return false;
+    if (fp && a.priority !== fp) return false;
+    return true;
+  });
+}
+
+function renderCards() {
+  activeFilter = document.getElementById('filter-status').value;
+  renderPipeline();
+  renderStats();
+  const filtered = getFiltered();
+  const container = document.getElementById('cards-container');
+  const empty = document.getElementById('empty-state');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '';
+    empty.style.display = apps.length === 0 ? 'block' : 'block';
+    if (apps.length > 0) {
+      empty.querySelector('.es-title').textContent = 'No results';
+      empty.querySelector('p').textContent = 'Try adjusting your filters.';
+    }
+    return;
+  }
+  empty.style.display = 'none';
+
+  container.innerHTML = filtered.map(a => {
+    const sc = STATUS_CLASS[a.status] || 's-to-send';
+    const pdot = a.priority === 'High' ? 'p-high' : a.priority === 'Low' ? 'p-low' : 'p-medium';
+    const skills = a.skills ? a.skills.split(',').slice(0,4).map(s =>
+      `<span class="tag">${s.trim()}</span>`).join('') : '';
+    const typeBadge = a.type === 'Spontaneous'
+      ? `<span class="type-badge type-spontaneous">spontaneous</span>`
+      : `<span class="type-badge type-listing">listing</span>`;
+
+    return `<div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-company">${a.company}</div>
+          <div class="card-role">${a.role || '—'} ${typeBadge}</div>
+        </div>
+        <span class="status-badge ${sc}">${STATUS_EMOJI[a.status]} ${a.status}</span>
+      </div>
+      <div class="card-body">
+        ${a.city ? `<div class="card-row"><span class="icon">📍</span><span class="val">${a.city}${a.address?', '+a.address:''}</span></div>` : ''}
+        ${a.email ? `<div class="card-row"><span class="icon">✉</span><span class="val">${a.email}</span></div>` : ''}
+        ${a.phone ? `<div class="card-row"><span class="icon">📞</span><span class="val">${a.phone}</span></div>` : ''}
+        ${a.salary ? `<div class="card-row"><span class="icon">💰</span><span class="val">${a.salary}</span></div>` : ''}
+        ${a.hours ? `<div class="card-row"><span class="icon">🕐</span><span class="val">${a.hours}</span></div>` : ''}
+        ${a.source ? `<div class="card-row"><span class="icon">🔗</span><span class="val">${a.source}</span></div>` : ''}
+        <div class="card-row"><span class="icon">⚑</span><span class="priority-dot ${pdot}"></span><span class="val">${a.priority} priority</span></div>
+        ${a.date ? `<div class="card-row"><span class="icon">📅</span><span class="val">Applied: ${a.date}</span></div>` : ''}
+        ${skills ? `<div class="tags">${skills}</div>` : ''}
+      </div>
+      <div class="card-footer">
+        <button class="btn-sm" onclick="openView('${a.id}')">View</button>
+        <button class="btn-sm gold" onclick="openEmailModal('${a.id}')">✉ Email</button>
+        <button class="btn-sm" onclick="openEdit('${a.id}')">Edit</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+//  ADD / EDIT MODAL
+// ══════════════════════════════════════════
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'New Application';
+  document.getElementById('btn-email-from-form').style.display = 'none';
+  clearForm();
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openEdit(id) {
+  editingId = id;
+  const a = apps.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('modal-title').textContent = 'Edit Application';
+  document.getElementById('btn-email-from-form').style.display = 'inline-block';
+  fillForm(a);
+  document.getElementById('modal-overlay').classList.add('open');
+  closeViewModal();
+}
+
+function clearForm() {
+  ['f-company','f-contact','f-email','f-hr-email','f-other-emails','f-phone',
+   'f-city','f-address','f-role','f-salary','f-hours','f-url','f-source',
+   'f-date','f-deadline','f-skills','f-notes','f-log-entry'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-status').value = 'To Send';
+  document.getElementById('f-priority').value = 'Medium';
+  document.getElementById('f-type').value = 'Job Listing';
+  document.getElementById('f-category').value = '';
+}
+
+function fillForm(a) {
+  document.getElementById('f-company').value = a.company || '';
+  document.getElementById('f-contact').value = a.contact || '';
+  document.getElementById('f-email').value = a.email || '';
+  document.getElementById('f-hr-email').value = a.hrEmail || '';
+  document.getElementById('f-other-emails').value = a.otherEmails || '';
+  document.getElementById('f-phone').value = a.phone || '';
+  document.getElementById('f-city').value = a.city || '';
+  document.getElementById('f-address').value = a.address || '';
+  document.getElementById('f-role').value = a.role || '';
+  document.getElementById('f-category').value = a.category || '';
+  document.getElementById('f-salary').value = a.salary || '';
+  document.getElementById('f-hours').value = a.hours || '';
+  document.getElementById('f-type').value = a.type || 'Job Listing';
+  document.getElementById('f-priority').value = a.priority || 'Medium';
+  document.getElementById('f-url').value = a.url || '';
+  document.getElementById('f-source').value = a.source || '';
+  document.getElementById('f-date').value = a.date || '';
+  document.getElementById('f-deadline').value = a.deadline || '';
+  document.getElementById('f-skills').value = a.skills || '';
+  document.getElementById('f-status').value = a.status || 'To Send';
+  document.getElementById('f-notes').value = a.notes || '';
+  document.getElementById('f-log-entry').value = '';
+}
+
+function saveApplication() {
+  const company = document.getElementById('f-company').value.trim();
+  if (!company) { alert('Company name is required.'); return; }
+
+  const logEntry = document.getElementById('f-log-entry').value.trim();
+  const today = new Date().toLocaleDateString('en-GB');
+
+  if (editingId) {
+    const idx = apps.findIndex(x => x.id === editingId);
+    const existing = apps[idx];
+    apps[idx] = {
+      ...existing,
+      company,
+      contact: document.getElementById('f-contact').value.trim(),
+      email: document.getElementById('f-email').value.trim(),
+      hrEmail: document.getElementById('f-hr-email').value.trim(),
+      otherEmails: document.getElementById('f-other-emails').value.trim(),
+      phone: document.getElementById('f-phone').value.trim(),
+      city: document.getElementById('f-city').value.trim(),
+      address: document.getElementById('f-address').value.trim(),
+      role: document.getElementById('f-role').value.trim(),
+      category: document.getElementById('f-category').value,
+      salary: document.getElementById('f-salary').value.trim(),
+      hours: document.getElementById('f-hours').value.trim(),
+      type: document.getElementById('f-type').value,
+      priority: document.getElementById('f-priority').value,
+      url: document.getElementById('f-url').value.trim(),
+      source: document.getElementById('f-source').value.trim(),
+      date: document.getElementById('f-date').value,
+      deadline: document.getElementById('f-deadline').value,
+      skills: document.getElementById('f-skills').value.trim(),
+      status: document.getElementById('f-status').value,
+      notes: document.getElementById('f-notes').value.trim(),
+      log: logEntry
+        ? [...(existing.log || []), { date: today, text: logEntry }]
+        : (existing.log || [])
+    };
+  } else {
+    const newApp = {
+      id: genId(),
+      company,
+      contact: document.getElementById('f-contact').value.trim(),
+      email: document.getElementById('f-email').value.trim(),
+      hrEmail: document.getElementById('f-hr-email').value.trim(),
+      otherEmails: document.getElementById('f-other-emails').value.trim(),
+      phone: document.getElementById('f-phone').value.trim(),
+      city: document.getElementById('f-city').value.trim(),
+      address: document.getElementById('f-address').value.trim(),
+      role: document.getElementById('f-role').value.trim(),
+      category: document.getElementById('f-category').value,
+      salary: document.getElementById('f-salary').value.trim(),
+      hours: document.getElementById('f-hours').value.trim(),
+      type: document.getElementById('f-type').value,
+      priority: document.getElementById('f-priority').value,
+      url: document.getElementById('f-url').value.trim(),
+      source: document.getElementById('f-source').value.trim(),
+      date: document.getElementById('f-date').value,
+      deadline: document.getElementById('f-deadline').value,
+      skills: document.getElementById('f-skills').value.trim(),
+      status: document.getElementById('f-status').value,
+      notes: document.getElementById('f-notes').value.trim(),
+      log: logEntry ? [{ date: today, text: logEntry }] : []
+    };
+    apps.unshift(newApp);
+  }
+
+  save();
+  closeModal();
+  renderAll();
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingId = null;
+}
+
+// ══════════════════════════════════════════
+//  VIEW MODAL
+// ══════════════════════════════════════════
+function openView(id) {
+  viewingId = id;
+  const a = apps.find(x => x.id === id);
+  if (!a) return;
+
+  document.getElementById('view-title').textContent = a.company;
+  document.getElementById('view-role').textContent = `${a.role || ''} · ${a.category || ''}`;
+
+  const sc = STATUS_CLASS[a.status] || 's-to-send';
+  const log = (a.log || []).slice().reverse();
+
+  const row = (icon, label, val) => val
+    ? `<div class="card-row"><span class="icon">${icon}</span><span style="color:var(--white-dim);min-width:110px">${label}</span><span class="val">${val}</span></div>`
+    : '';
+
+  document.getElementById('view-body').innerHTML = `
+    <div style="margin-bottom:14px">
+      <span class="status-badge ${sc}">${STATUS_EMOJI[a.status]} ${a.status}</span>
+      <span class="type-badge ${a.type==='Spontaneous'?'type-spontaneous':'type-listing'}" style="margin-left:8px">${a.type}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px">
+      ${row('👤','Contact', a.contact)}
+      ${row('✉','Email', a.email)}
+      ${row('📧','HR Email', a.hrEmail)}
+      ${row('✉','Other Emails', a.otherEmails)}
+      ${row('📞','Phone', a.phone)}
+      ${row('📍','City', a.city)}
+      ${row('🏢','Address', a.address)}
+      ${row('💰','Salary', a.salary)}
+      ${row('🕐','Hours', a.hours)}
+      ${row('🔗','Source', a.source)}
+      ${row('📅','Applied', a.date)}
+      ${row('⏰','Deadline', a.deadline)}
+      ${row('⚑','Priority', a.priority)}
+    </div>
+    ${a.skills ? `<div style="margin-bottom:14px"><div class="form-section-title">Skills Required</div><div class="tags">${a.skills.split(',').map(s=>`<span class="tag">${s.trim()}</span>`).join('')}</div></div>` : ''}
+    ${a.url ? `<div style="margin-bottom:14px"><a href="${a.url}" target="_blank" style="color:var(--gold);font-size:12px">🔗 View original listing</a></div>` : ''}
+    ${a.notes ? `<div style="margin-bottom:16px"><div class="form-section-title">Notes</div><p style="font-size:13px;color:var(--white-dim);line-height:1.6">${a.notes}</p></div>` : ''}
+    <div>
+      <div class="form-section-title">Action Log</div>
+      ${log.length === 0
+        ? `<p style="font-size:12px;color:var(--white-dim)">No log entries yet.</p>`
+        : log.map(l => `<div class="log-entry"><span class="log-date">${l.date}</span><span class="log-text">${l.text}</span></div>`).join('')
+      }
+    </div>
+  `;
+
+  document.getElementById('view-overlay').classList.add('open');
+}
+
+function closeViewModal() {
+  document.getElementById('view-overlay').classList.remove('open');
+}
+
+function editFromView() {
+  if (viewingId) openEdit(viewingId);
+}
+
+function openEmailFromView() {
+  if (viewingId) openEmailModal(viewingId);
+}
+
+function deleteFromView() {
+  if (!viewingId) return;
+  const a = apps.find(x => x.id === viewingId);
+  if (!confirm(`Delete "${a?.company}"? This cannot be undone.`)) return;
+  apps = apps.filter(x => x.id !== viewingId);
+  save();
+  closeViewModal();
+  renderAll();
+}
+
+// ══════════════════════════════════════════
+//  EMAIL MODAL + AI GENERATION
+// ══════════════════════════════════════════
+let currentEmailApp = null;
+
+async function openEmailModal(id, fromForm) {
+  let a;
+  if (fromForm) {
+    a = {
+      company: document.getElementById('f-company').value.trim() || 'the company',
+      role: document.getElementById('f-role').value.trim() || 'the position',
+      contact: document.getElementById('f-contact').value.trim(),
+      hrEmail: document.getElementById('f-hr-email').value.trim(),
+      email: document.getElementById('f-email').value.trim(),
+      type: document.getElementById('f-type').value,
+      skills: document.getElementById('f-skills').value.trim(),
+      city: document.getElementById('f-city').value.trim(),
+    };
+  } else {
+    a = apps.find(x => x.id === id);
+    if (!a) return;
+  }
+  currentEmailApp = a;
+
+  // Pre-fill subject and to
+  const toEmail = a.hrEmail || a.email || '';
+  const isSpontaneous = a.type === 'Spontaneous';
+  const subject = isSpontaneous
+    ? `Candidatura Spontanea – Ingegnere Elettronico | ${a.company}`
+    : `Candidatura per ${a.role} – ${a.company}`;
+
+  document.getElementById('email-subject').value = subject;
+  document.getElementById('email-to').value = toEmail;
+  document.getElementById('email-body').value = '';
+  document.getElementById('email-generating').style.display = 'block';
+  document.getElementById('email-overlay').classList.add('open');
+
+  await generateEmailBody(a);
+}
+
+async function generateEmailBody(a) {
+  const isSpontaneous = a.type === 'Spontaneous';
+  const prompt = `Scrivi una email di candidatura professionale e concisa in italiano for the following situation:
+
+Candidato: cittadino irlandese residente a Ravenna, Italia. Laurea triennale in Ingegneria Elettronica. Esperienza lavorativa presso ASTIM (azienda ravennate specializzata in sistemi elettronici navali e di difesa: radar, sonar, sistemi elettro-ottici, telecomunicazioni). Esperienza anche in altri settori. Madrelingua inglese, parla arabo e sta imparando l'italiano. Patente di guida categoria B. 
+
+Company: ${a.company}
+${a.role ? `Position: ${a.role}` : 'This is a spontaneous application (no specific job posting).'}
+${a.city ? `Location: ${a.city}` : ''}
+${a.contact ? `Contact person: ${a.contact}` : ''}
+${a.skills ? `Required skills mentioned: ${a.skills}` : ''}
+Tipo candidatura: ${isSpontaneous ? 'Candidatura spontanea (nessun annuncio specifico trovato)' : 'Risposta a un annuncio di lavoro'}
+
+Requisiti:
+- Tono professionale ma cordiale
+- 3-4 paragrafi brevi
+- Cita il background del candidato presso ASTIM e nell'ingegneria elettronica
+- Cita la disponibilità a migliorare l'italiano e ad adattarsi
+- Cita che il CV è allegato
+- NON usare frasi generiche tipo "Le scrivo per esprimere il mio interesse"
+- Concludi con un invito all'azione chiaro
+- NON includere oggetto, solo il corpo dell'email partendo dal saluto`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text || '').join('') || 'Impossibile generare l\'email. Scrivila manualmente.';
+    document.getElementById('email-body').value = text;
+  } catch (e) {
+    document.getElementById('email-body').value = 'Generazione AI non riuscita. Scrivi l\'email manualmente.';
+  } finally {
+    document.getElementById('email-generating').style.display = 'none';
+  }
+}
+
+async function regenerateEmail() {
+  if (!currentEmailApp) return;
+  document.getElementById('email-body').value = '';
+  document.getElementById('email-generating').style.display = 'block';
+  await generateEmailBody(currentEmailApp);
+}
+
+function copyEmail() {
+  const subject = document.getElementById('email-subject').value;
+  const to = document.getElementById('email-to').value;
+  const body = document.getElementById('email-body').value;
+  const full = `To: ${to}\nSubject: ${subject}\n\n${body}`;
+  navigator.clipboard.writeText(full).then(() => {
+    alert('✅ Email copiata! Incollala su Gmail o Outlook e allega il tuo CV.');
+  }).catch(() => {
+    alert('Copia automatica non riuscita. Seleziona e copia il testo manualmente.');
+  });
+}
+
+function closeEmailModal() {
+  document.getElementById('email-overlay').classList.remove('open');
+  currentEmailApp = null;
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+renderAll();
+</script>
+</body>
+</html>
